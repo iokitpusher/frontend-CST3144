@@ -142,7 +142,53 @@ export default {
       return this.cart.length > 0 && this.validName && this.validPhone 
     },
     sortedAndFilteredLessons(){
-      return this.lessons; //TODO implement this
+      let searchText = this.searchQuery.toLowerCase();
+      let matchingLessons = [];
+
+      for (let i = 0; i < this.lessons.length; i++) {
+        let lesson = this.lessons[i];
+      
+        let subjectMatch = lesson.subject.toLowerCase().includes(searchText);
+        let locationMatch = lesson.location.toLowerCase().includes(searchText);
+        let priceMatch = String(lesson.price).includes(searchText);
+        let spacesMatch = String(lesson.spaces).includes(searchText);
+      
+        if (subjectMatch || locationMatch || priceMatch || spacesMatch) {
+          matchingLessons.push(lesson);
+        }
+      }
+
+      let sortField = this.sortBy;
+      let sortDirection = this.sortDir;
+    
+      matchingLessons.sort(function(a, b) {
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+      
+        if (typeof aValue === "string") {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+      
+        if (aValue < bValue) {
+          if (sortDirection === "asc") {
+            return -1;
+          } else {
+            return 1;
+          }
+        }
+      
+        if (aValue > bValue) {
+          if (sortDirection === "asc") {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+        return 0;
+      });
+    
+      return matchingLessons;
     }
   },
   methods: {
