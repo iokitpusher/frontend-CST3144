@@ -222,13 +222,13 @@ export default {
           this.lessons[j].spaces = this.lessons[j].spaces + 1;
           break;
         }
-  }
+      }
 
-  this.cart.splice(i, 1);
+      this.cart.splice(i, 1);
 
-  if (this.cart.length == 0) {
-    this.showCart = false;
-  }
+      if (this.cart.length == 0) {
+        this.showCart = false;
+      }
     },
     submitOrder(){
       if (!this.canCheckout) {
