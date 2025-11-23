@@ -230,7 +230,7 @@ export default {
         this.showCart = false;
       }
     },
-    submitOrder(){
+    submitOrder() {
       if (!this.canCheckout) {
         return;
       }
@@ -242,10 +242,10 @@ export default {
       this.cart = [];
       this.showCart = false;
 
-      setTimeout(function () {
+      setTimeout(() => {
         this.orderMessage = '';
       }, 6000);
-        }
+    }
   }
 }
 </script>
