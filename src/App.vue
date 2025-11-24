@@ -136,7 +136,7 @@ export default {
       return /^[A-Za-z\s]+$/.test(this.checkout.name || '') 
     },
     validPhone(){
-      return /^\d+$/.test(this.checkout.phone || '') 
+      return /^\d{11,15}$/.test(this.checkout.phone || '') //min 11 and max 15
     },
     canCheckout(){ 
       return this.cart.length > 0 && this.validName && this.validPhone 
