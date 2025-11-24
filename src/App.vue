@@ -101,6 +101,7 @@
 </template>
 
 <script>
+const API_BASE = 'https://backend-test-mxyd.onrender.com' //will change proably.. was testing using private repo..
 export default {
   name: 'App',
   data() {
@@ -109,20 +110,7 @@ export default {
       searchQuery: '',
       sortBy: 'subject',
       sortDir: 'asc',
-      lessons: [
-        { id:1, subject:'Math', location:'London',  price:100, spaces:5, icon:'fa-solid fa-calculator' }, //some predefined hardcoded lessons, these are just fine
-        { id:2, subject:'Math', location:'Oxford',  price:100, spaces:5, icon:'fa-solid fa-calculator' },
-        { id:3, subject:'English', location:'London',price:100, spaces:5, icon:'fa-solid fa-pen-nib' },
-        { id:4, subject:'English', location:'York',  price:80,  spaces:5, icon:'fa-solid fa-pen-nib' },
-        { id:5, subject:'Music', location:'Bristol', price:90,  spaces:5, icon:'fa-solid fa-music' },
-        { id:6, subject:'Science', location:'Leeds', price:110, spaces:5, icon:'fa-solid fa-flask' },
-        { id:7, subject:'Art', location:'Brighton',  price:75,  spaces:5, icon:'fa-solid fa-palette' },
-        { id:8, subject:'Computing', location:'London', price:120, spaces:5, icon:'fa-solid fa-laptop-code' },
-        { id:9, subject:'Drama', location:'Bath',     price:85,  spaces:5, icon:'fa-solid fa-masks-theater' },
-        { id:10,subject:'Geography', location:'Cardiff', price:95, spaces:5, icon:'fa-solid fa-globe' },
-        { id:11,subject:'History',   location:'York',    price:90, spaces:5, icon:'fa-solid fa-landmark' },
-        { id:12,subject:'French',    location:'London',  price:105,spaces:5, icon:'fa-solid fa-language' }
-      ],
+      lessons: [],
       cart: [],
       checkout: { name: '', phone: '' },
       orderMessage: ''
@@ -191,7 +179,32 @@ export default {
       return matchingLessons;
     }
   },
+  mounted() {
+    this.loadLessons();
+  },
   methods: {
+
+
+    async loadLessons() {
+      try {
+        const res = await fetch(`${API_BASE}/lessons`);
+        if (!res.ok) throw new Error('Failed to fetch lessons.. is the onrendere instance running??');
+        const rows = await res.json();
+
+        this.lessons = rows.map(cur => ({
+          id: cur.id,
+          subject: cur.subject,
+          location: cur.location,
+          price: cur.price,
+          spaces: cur.spaces,
+          icon: cur.icon,
+        }));
+      } catch (err) {
+        console.error('Failed to load...??', err);
+        this.lessons = [];
+      }
+    },
+
     toggleCart(){ 
       if (this.cartCnt > 0) {
         this.showCart = !this.showCart;
