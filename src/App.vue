@@ -205,6 +205,15 @@ export default {
       }
     },
 
+    getUpdatedSpaces(id) {
+      for (var i = 0; i < this.lessons.length; i++) {
+        if (this.lessons[i].id == id) {
+          return this.lessons[i].spaces; 
+        }
+      }
+      return 0;
+    },
+
     toggleCart(){ 
       if (this.cartCnt > 0) {
         this.showCart = !this.showCart;
@@ -247,18 +256,56 @@ export default {
       if (!this.canCheckout) {
         return;
       }
-
-      this.orderMessage = 'Thanks, ' + this.checkout.name + '! Your order for ' + this.cart.length + ' lesson(s) has been submitted successfully!';
-
-      this.checkout.name = '';
-      this.checkout.phone = '';
-      this.cart = [];
-      this.showCart = false;
-
-      setTimeout(() => {
-        this.orderMessage = '';
-      }, 6000);
-    }
+    
+      var items = this.cart.map(function (item) {
+        return {
+          lessonId: item.id,
+          spaces: 1
+        };
+      });
+    
+      var payload = {
+        name: this.checkout.name,
+        phone: this.checkout.phone,
+        items: items
+      };
+    
+      fetch(API_BASE + "/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert("Order failed: " + data.error);
+            return;
+          }
+          this.cart.forEach((item) => {
+            fetch(API_BASE + "/lessons/" + item.id, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                update: { spaces: this.getUpdatedSpaces(item.id) }
+              })
+            });
+          });
+        
+          this.orderMessage = 'Thanks, ' + this.checkout.name + '! Your order for ' + this.cart.length + ' lesson(s) has been submitted successfully!';
+        
+          this.checkout.name = "";
+          this.checkout.phone = "";
+          this.cart = [];
+          this.showCart = false;
+        
+          setTimeout(() => {
+            this.orderMessage = "";
+          }, 6000);
+        })
+        .catch(() => {
+          alert("Checkout failed. Try again?!");
+        });
+    },
   }
 }
 </script>
