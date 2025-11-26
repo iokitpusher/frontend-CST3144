@@ -102,7 +102,7 @@
 </template>
 
 <script>
-const API_BASE = 'https://backend-test-mxyd.onrender.com' //will change proably.. was testing using private repo..
+const API_BASE = 'https://backend-cst3144.onrender.com' //will change proably.. was testing using private repo..
 export default {
   name: 'App',
   data() {
