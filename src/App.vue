@@ -192,7 +192,7 @@ export default {
         const rows = await res.json();
 
         this.lessons = rows.map(cur => ({
-          id: cur.id,
+          id: cur._id,
           subject: cur.subject,
           location: cur.location,
           price: cur.price,
