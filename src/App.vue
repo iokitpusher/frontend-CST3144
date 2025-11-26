@@ -41,6 +41,7 @@
     </div>
   </section>
 
+  <p v-if="loadingLessons" class="empty">Loading lessons...</p>
   <main class="shell grid" v-if="!showCart">
     <article class="card" v-for="lesson in sortedAndFilteredLessons" :key="lesson.id">
       <div class="card-icon"><i :class="lesson.icon"></i></div>
@@ -113,7 +114,8 @@ export default {
       lessons: [],
       cart: [],
       checkout: { name: '', phone: '' },
-      orderMessage: ''
+      orderMessage: '',
+      loadingLessons: true,
     }
   },
   computed: {
@@ -199,8 +201,10 @@ export default {
           spaces: cur.spaces,
           icon: cur.icon,
         }));
+        this.loadingLessons = false;
       } catch (err) {
         console.error('Failed to load...??', err);
+        this.loadingLessons = false;
         this.lessons = [];
       }
     },
