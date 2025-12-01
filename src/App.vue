@@ -42,6 +42,7 @@
   </section>
 
   <p v-if="loadingLessons" class="empty">Loading lessons...</p>
+  <p v-else-if="searching && !showCart" class="empty">Searching…</p>
   <main class="shell grid" v-if="!showCart">
     <article class="card" v-for="lesson in sortedAndFilteredLessons" :key="lesson.id">
       <div class="card-icon"><i :class="lesson.icon"></i></div>
@@ -116,6 +117,7 @@ export default {
       checkout: { name: '', phone: '' },
       orderMessage: '',
       loadingLessons: true,
+      searching: false,
     }
   },
   computed: {
@@ -132,26 +134,12 @@ export default {
       return this.cart.length > 0 && this.validName && this.validPhone 
     },
     sortedAndFilteredLessons(){
-      let searchText = this.searchQuery.toLowerCase();
-      let matchingLessons = [];
 
-      for (let i = 0; i < this.lessons.length; i++) {
-        let lesson = this.lessons[i];
-      
-        let subjectMatch = lesson.subject.toLowerCase().includes(searchText);
-        let locationMatch = lesson.location.toLowerCase().includes(searchText);
-        let priceMatch = String(lesson.price).includes(searchText);
-        let spacesMatch = String(lesson.spaces).includes(searchText);
-      
-        if (subjectMatch || locationMatch || priceMatch || spacesMatch) {
-          matchingLessons.push(lesson);
-        }
-      }
-
+      let list = this.lessons.slice();
       let sortField = this.sortBy;
       let sortDirection = this.sortDir;
     
-      matchingLessons.sort(function(a, b) {
+      list.sort(function(a, b) {
         let aValue = a[sortField];
         let bValue = b[sortField];
       
@@ -178,14 +166,59 @@ export default {
         return 0;
       });
     
-      return matchingLessons;
+      return list;
+    }
+  },
+  watch: {
+    searchQuery(value){
+      this.runSearch(value);
     }
   },
   mounted() {
-    this.loadLessons();
+    //this.loadLessons();
+    this.runSearch(""); 
   },
   methods: {
 
+
+    async runSearch(q) {
+      this.searching = true;
+
+      let url;
+      if (q === "" || q === null) {
+        url = API_BASE + "/lessons";
+      } else {
+        url = API_BASE + "/search?q=" + encodeURIComponent(q); //for the ecodign of < > etc etc
+      }
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('search failed');
+        const data = await res.json();
+
+        let arr = [];
+        for (let i = 0; i < data.length; i++) {
+          let cur = data[i];
+          arr.push({
+            id: cur._id,
+            subject: cur.subject,
+            location: cur.location,
+            price: cur.price,
+            spaces: cur.spaces,
+            icon: cur.icon
+          });
+        }
+
+        this.lessons = arr;
+
+      } catch (err) {
+        console.log("search broken", err);
+        this.lessons = [];
+      }
+
+      this.loadingLessons = false; // mark initial load done
+      this.searching = false;
+    },
 
     async loadLessons() {
       try {
